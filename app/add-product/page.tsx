@@ -15,6 +15,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Upload } from "lucide-react"
 import Link from "next/link"
+import { productsAPI } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 export default function AddProductPage() {
   const [title, setTitle] = useState("")
@@ -25,6 +27,7 @@ export default function AddProductPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const categories = ["Clothing", "Electronics", "Furniture", "Sports", "Books", "Music"]
 
@@ -54,29 +57,22 @@ export default function AddProductPage() {
     }
 
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}")
-
-      // Mock API call - in real app, this would call your API
-      const newProduct = {
-        id: Date.now(), // Simple ID generation for demo
+      const response = await productsAPI.createProduct({
         title,
         description,
         category,
         price: priceNum,
-        imageUrl: imageUrl || "/placeholder.svg?height=300&width=300",
-        sellerId: user.id,
-        sellerName: user.username,
-        createdAt: new Date().toISOString(),
-      }
+        imageUrl: imageUrl || undefined,
+      })
 
-      // Store in localStorage for demo (in real app, this would be sent to API)
-      const existingProducts = JSON.parse(localStorage.getItem("userProducts") || "[]")
-      existingProducts.push(newProduct)
-      localStorage.setItem("userProducts", JSON.stringify(existingProducts))
+      toast({
+        title: "Product added successfully!",
+        description: `${title} has been added to your listings.`,
+      })
 
       router.push("/my-listings")
-    } catch (err) {
-      setError("Failed to add product. Please try again.")
+    } catch (err: any) {
+      setError(err.message || "Failed to add product. Please try again.")
     }
 
     setIsLoading(false)
@@ -157,7 +153,7 @@ export default function AddProductPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="price">Price ($) *</Label>
+                      <Label htmlFor="price">Price (₹) *</Label>
                       <Input
                         id="price"
                         type="number"

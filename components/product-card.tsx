@@ -8,17 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, Leaf, Heart } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-
-interface Product {
-  id: number
-  title: string
-  description: string
-  price: number
-  category: string
-  imageUrl: string
-  sellerId: number
-  sellerName: string
-}
+import { cartAPI, type Product } from "@/lib/api"
 
 interface ProductCardProps {
   product: Product
@@ -29,29 +19,40 @@ interface ProductCardProps {
 export function ProductCard({ product, showActions = true, onAddToCart }: ProductCardProps) {
   const { toast } = useToast()
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
     if (onAddToCart) {
       onAddToCart(product)
-    } else {
-      const existingCart = JSON.parse(localStorage.getItem("cart") || "[]")
-      const existingItem = existingCart.find((item: any) => item.id === product.id)
+      return
+    }
 
-      if (existingItem) {
-        existingItem.quantity += 1
-      } else {
-        existingCart.push({ ...product, quantity: 1 })
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        toast({
+          title: "Please login",
+          description: "You need to be logged in to add items to cart.",
+          variant: "destructive",
+        })
+        return
       }
 
-      localStorage.setItem("cart", JSON.stringify(existingCart))
+      await cartAPI.addToCart(product.id, 1)
 
+      // Dispatch event to update cart badge
       window.dispatchEvent(new Event("cartUpdated"))
 
       toast({
         title: "Added to cart",
         description: `${product.title} has been added to your cart.`,
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add item to cart.",
+        variant: "destructive",
       })
     }
   }
@@ -72,9 +73,12 @@ export function ProductCard({ product, showActions = true, onAddToCart }: Produc
         <CardContent className="p-0">
           <div className="relative overflow-hidden">
             <img
-              src={product.imageUrl || "/placeholder.svg"}
+              src={product.imageUrl || "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop"}
               alt={product.title}
               className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                e.currentTarget.src = "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop"
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -118,9 +122,9 @@ export function ProductCard({ product, showActions = true, onAddToCart }: Produc
             <div className="flex items-center justify-between mb-4">
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-foreground bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                  ${product.price.toFixed(2)}
+                  ₹{product.price.toFixed(2)}
                 </span>
-                <span className="text-xs text-muted-foreground font-medium">by {product.sellerName}</span>
+                <span className="text-xs text-muted-foreground font-medium">by {product.owner?.username || 'Unknown'}</span>
               </div>
 
               <Badge variant="outline" className="text-xs bg-muted/50 text-muted-foreground border-muted-foreground/20">

@@ -17,75 +17,59 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { Package } from "lucide-react" // Import Package component
-
-interface Product {
-  id: number
-  title: string
-  description: string
-  price: number
-  category: string
-  imageUrl: string
-  sellerId: number
-  sellerName: string
-  createdAt?: string
-}
+import { Package } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { productsAPI, type Product } from "@/lib/api"
 
 export default function MyListingsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [deleteProductId, setDeleteProductId] = useState<number | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+
+  const fetchMyProducts = async () => {
+    try {
+      setIsLoading(true)
+      const response = await productsAPI.getMyProducts()
+      setProducts(response.products)
+    } catch (error: any) {
+      console.error("Error fetching my products:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load your products.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
     if (userData) {
       setUser(JSON.parse(userData))
     }
-
-    // Load user's products from localStorage
-    const userProducts = JSON.parse(localStorage.getItem("userProducts") || "[]")
-
-    // Add some mock products for the current user for demo purposes
-    const mockUserProducts = [
-      {
-        id: 101,
-        title: "MacBook Pro 2019",
-        description: "Well-maintained MacBook Pro, perfect for students or professionals",
-        price: 899.99,
-        category: "Electronics",
-        imageUrl: "/placeholder.svg?height=300&width=300&text=MacBook",
-        sellerId: 1,
-        sellerName: userData ? JSON.parse(userData).username : "user",
-        createdAt: "2024-01-15T10:00:00Z",
-      },
-      {
-        id: 102,
-        title: "Vintage Denim Jacket",
-        description: "Classic 90s denim jacket in excellent condition, size M",
-        price: 45.0,
-        category: "Clothing",
-        imageUrl: "/placeholder.svg?height=300&width=300&text=Denim+Jacket",
-        sellerId: 1,
-        sellerName: userData ? JSON.parse(userData).username : "user",
-        createdAt: "2024-01-10T14:30:00Z",
-      },
-    ]
-
-    // Combine mock products with user-added products
-    const allUserProducts = [...mockUserProducts, ...userProducts]
-    setProducts(allUserProducts)
+    fetchMyProducts()
   }, [])
 
-  const handleDeleteProduct = (productId: number) => {
-    const updatedProducts = products.filter((product) => product.id !== productId)
-    setProducts(updatedProducts)
-
-    // Update localStorage (remove from userProducts, keep mock products in memory only)
-    const userProducts = JSON.parse(localStorage.getItem("userProducts") || "[]")
-    const updatedUserProducts = userProducts.filter((product: Product) => product.id !== productId)
-    localStorage.setItem("userProducts", JSON.stringify(updatedUserProducts))
-
-    setDeleteProductId(null)
+  const handleDeleteProduct = async (productId: number) => {
+    try {
+      await productsAPI.deleteProduct(productId)
+      await fetchMyProducts() // Refresh the list
+      setDeleteProductId(null)
+      toast({
+        title: "Success",
+        description: "Product deleted successfully.",
+      })
+    } catch (error: any) {
+      console.error("Error deleting product:", error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete product.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -107,7 +91,12 @@ export default function MyListingsPage() {
             </Link>
           </div>
 
-          {products.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground mt-4">Loading your products...</p>
+            </div>
+          ) : products.length === 0 ? (
             <div className="text-center py-12">
               <div className="mb-4">
                 <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />

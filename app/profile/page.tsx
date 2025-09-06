@@ -257,7 +257,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Total Spent</span>
                       </div>
-                      <Badge variant="secondary">${stats.totalSpent.toFixed(2)}</Badge>
+                      <Badge variant="secondary">₹{stats.totalSpent.toFixed(2)}</Badge>
                     </div>
                   </CardContent>
                 </Card>

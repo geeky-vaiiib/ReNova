@@ -8,104 +8,49 @@ import { SearchAndFilter } from "@/components/search-and-filter"
 import { Button } from "@/components/ui/button"
 import { Plus, Sparkles, TrendingUp, Users, Leaf } from "lucide-react"
 import Link from "next/link"
-
-// Mock product data
-const mockProducts = [
-  {
-    id: 1,
-    title: "Vintage Leather Jacket",
-    description: "Classic brown leather jacket in excellent condition",
-    price: 89.99,
-    category: "Clothing",
-    imageUrl: "/vintage-leather-jacket.png",
-    sellerId: 2,
-    sellerName: "sarah_vintage",
-  },
-  {
-    id: 2,
-    title: "iPhone 12 Pro",
-    description: "Unlocked iPhone 12 Pro, 128GB, minor scratches",
-    price: 599.99,
-    category: "Electronics",
-    imageUrl: "/iphone-12-pro.jpg",
-    sellerId: 3,
-    sellerName: "tech_reseller",
-  },
-  {
-    id: 3,
-    title: "Wooden Coffee Table",
-    description: "Handcrafted oak coffee table, perfect for living room",
-    price: 150.0,
-    category: "Furniture",
-    imageUrl: "/wooden-coffee-table.png",
-    sellerId: 4,
-    sellerName: "furniture_lover",
-  },
-  {
-    id: 4,
-    title: "Road Bike - Trek",
-    description: "Trek road bike, 21 speed, great for commuting",
-    price: 320.0,
-    category: "Sports",
-    imageUrl: "/trek-road-bike.png",
-    sellerId: 5,
-    sellerName: "bike_enthusiast",
-  },
-  {
-    id: 5,
-    title: "Organic Chemistry Textbook",
-    description: "University level organic chemistry textbook, like new",
-    price: 45.0,
-    category: "Books",
-    imageUrl: "/chemistry-textbook.png",
-    sellerId: 6,
-    sellerName: "student_seller",
-  },
-  {
-    id: 6,
-    title: "Vintage Vinyl Records",
-    description: "Collection of 70s rock vinyl records",
-    price: 75.0,
-    category: "Music",
-    imageUrl: "/vintage-vinyl-records.jpg",
-    sellerId: 7,
-    sellerName: "music_collector",
-  },
-]
+import { productsAPI, type Product } from "@/lib/api"
 
 export default function HomePage() {
-  const [products, setProducts] = useState(mockProducts)
-  const [filteredProducts, setFilteredProducts] = useState(mockProducts)
+  const [products, setProducts] = useState<Product[]>([])
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
 
   const categories = ["All", "Clothing", "Electronics", "Furniture", "Sports", "Books", "Music"]
 
+  // Fetch products from API
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true)
+      const response = await productsAPI.getProducts({
+        search: searchQuery || undefined,
+        category: selectedCategory !== "All" ? selectedCategory : undefined,
+      })
+      setProducts(response.products)
+      setFilteredProducts(response.products)
+      setError("")
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch products")
+      console.error("Error fetching products:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800)
-    return () => clearTimeout(timer)
+    fetchProducts()
   }, [])
 
   useEffect(() => {
-    let filtered = products
+    // Debounce search and category filter
+    const timer = setTimeout(() => {
+      fetchProducts()
+    }, 300)
 
-    // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (product) =>
-          product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    }
-
-    // Filter by category
-    if (selectedCategory !== "All") {
-      filtered = filtered.filter((product) => product.category === selectedCategory)
-    }
-
-    setFilteredProducts(filtered)
-  }, [searchQuery, selectedCategory, products])
+    return () => clearTimeout(timer)
+  }, [searchQuery, selectedCategory])
 
   if (isLoading) {
     return (

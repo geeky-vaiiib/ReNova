@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Home, Package, ShoppingCart, User, Leaf, Menu, X, History } from "lucide-react"
+import { Home, Package, ShoppingCart, User, Leaf, Menu, X, History, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CartBadge } from "@/components/cart-badge"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -33,6 +33,7 @@ export function Navbar() {
     { href: "/my-listings", label: "My Listings", icon: Package },
     { href: "/cart", label: "Cart", icon: ShoppingCart, showBadge: true },
     { href: "/orders", label: "Orders", icon: History },
+    { href: "/about", label: "About", icon: Info },
     { href: "/profile", label: "Profile", icon: User },
   ]
 

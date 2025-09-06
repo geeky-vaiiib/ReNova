@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Leaf } from "lucide-react"
+import { authAPI } from "@/lib/api"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -52,33 +53,15 @@ export default function SignupPage() {
     }
 
     try {
-      // Mock API call - in real app, this would call your API
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, username, password }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/home")
-      } else {
-        setError("Failed to create account")
+      const data = await authAPI.register(username, email, password)
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify(data.user))
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken)
       }
-    } catch (err) {
-      // Mock success for demo purposes
-      localStorage.setItem("token", "mock-jwt-token")
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: 1,
-          email,
-          username,
-        }),
-      )
       router.push("/home")
+    } catch (err: any) {
+      setError(err.message || "Failed to create account. Please try again.")
     }
 
     setIsLoading(false)

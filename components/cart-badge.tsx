@@ -2,28 +2,35 @@
 
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
+import { cartAPI } from "@/lib/api"
 
 export function CartBadge() {
   const [itemCount, setItemCount] = useState(0)
 
   useEffect(() => {
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]")
-      const totalItems = cart.reduce((total: number, item: any) => total + item.quantity, 0)
-      setItemCount(totalItems)
+    const updateCartCount = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        if (!token) {
+          setItemCount(0)
+          return
+        }
+
+        const response = await cartAPI.getCartCount()
+        setItemCount(response.itemCount || 0)
+      } catch (error) {
+        console.error("Error fetching cart count:", error)
+        setItemCount(0)
+      }
     }
 
     // Initial load
     updateCartCount()
 
-    // Listen for storage changes (when cart is updated in other components)
-    window.addEventListener("storage", updateCartCount)
-
-    // Custom event for same-page cart updates
+    // Listen for custom cart update events
     window.addEventListener("cartUpdated", updateCartCount)
 
     return () => {
-      window.removeEventListener("storage", updateCartCount)
       window.removeEventListener("cartUpdated", updateCartCount)
     }
   }, [])

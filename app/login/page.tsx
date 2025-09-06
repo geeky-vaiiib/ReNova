@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Leaf, Mail, Lock, ArrowRight } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { authAPI } from "@/lib/api"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -39,33 +40,15 @@ export default function LoginPage() {
     }
 
     try {
-      // Mock authentication - in real app, this would call your API
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/home")
-      } else {
-        setError("Invalid email or password")
+      const data = await authAPI.login(email, password)
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify(data.user))
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken)
       }
-    } catch (err) {
-      // Mock success for demo purposes
-      localStorage.setItem("token", "mock-jwt-token")
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: 1,
-          email,
-          username: email.split("@")[0],
-        }),
-      )
       router.push("/home")
+    } catch (err: any) {
+      setError(err.message || "Login failed. Please try again.")
     }
 
     setIsLoading(false)

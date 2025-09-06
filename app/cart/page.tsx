@@ -19,50 +19,81 @@ import {
 } from "@/components/ui/alert-dialog"
 import { ShoppingCart, Plus, Minus, Trash2, CreditCard, Leaf } from "lucide-react"
 import Link from "next/link"
-
-interface CartItem {
-  id: number
-  title: string
-  description: string
-  price: number
-  category: string
-  imageUrl: string
-  sellerId: number
-  sellerName: string
-  quantity: number
-}
+import { cartAPI, ordersAPI, type CartItem } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [showCheckoutDialog, setShowCheckoutDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [cartTotal, setCartTotal] = useState(0)
   const router = useRouter()
+  const { toast } = useToast()
+
+  const fetchCart = async () => {
+    try {
+      setIsLoading(true)
+      const response = await cartAPI.getCart()
+      setCartItems(response.cartItems)
+      setCartTotal(response.summary.total)
+    } catch (error: any) {
+      console.error("Error fetching cart:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load cart items.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // Load cart from localStorage
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]")
-    setCartItems(cart)
+    fetchCart()
   }, [])
 
-  const updateQuantity = (itemId: number, newQuantity: number) => {
+  const updateQuantity = async (itemId: number, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId)
       return
     }
 
-    const updatedCart = cartItems.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item))
-    setCartItems(updatedCart)
-    localStorage.setItem("cart", JSON.stringify(updatedCart))
+    try {
+      await cartAPI.updateCartItem(itemId, newQuantity)
+      await fetchCart() // Refresh cart
+      window.dispatchEvent(new Event("cartUpdated"))
+
+      toast({
+        title: "Cart updated",
+        description: "Item quantity has been updated.",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update item quantity.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const removeItem = (itemId: number) => {
-    const updatedCart = cartItems.filter((item) => item.id !== itemId)
-    setCartItems(updatedCart)
-    localStorage.setItem("cart", JSON.stringify(updatedCart))
-  }
+  const removeItem = async (itemId: number) => {
+    try {
+      await cartAPI.removeFromCart(itemId)
+      await fetchCart() // Refresh cart
+      window.dispatchEvent(new Event("cartUpdated"))
 
-  const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+      toast({
+        title: "Item removed",
+        description: "Item has been removed from your cart.",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove item from cart.",
+        variant: "destructive",
+      })
+    }
   }
 
   const getTotalItems = () => {
@@ -73,22 +104,16 @@ export default function CartPage() {
     setIsCheckingOut(true)
 
     try {
-      // Create order object
-      const order = {
-        id: Date.now(),
-        items: cartItems,
-        total: getTotalPrice(),
-        date: new Date().toISOString(),
-        status: "completed",
-      }
+      const response = await ordersAPI.checkout()
 
-      // Save order to localStorage
-      const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
-      existingOrders.push(order)
-      localStorage.setItem("orders", JSON.stringify(existingOrders))
+      // Refresh cart (should be empty now)
+      await fetchCart()
+      window.dispatchEvent(new Event("cartUpdated"))
 
-      // Clear cart
-      localStorage.removeItem("cart")
+      toast({
+        title: "Order placed successfully!",
+        description: `Your order #${response.order.id} has been placed.`,
+      })
       setCartItems([])
 
       // Simulate checkout delay
@@ -143,18 +168,21 @@ export default function CartPage() {
                       <CardContent className="p-4">
                         <div className="flex gap-4">
                           <img
-                            src={item.imageUrl || "/placeholder.svg"}
-                            alt={item.title}
+                            src={item.product.imageUrl || "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop"}
+                            alt={item.product.title}
                             className="w-20 h-20 object-cover rounded-lg"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop"
+                            }}
                           />
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <h3 className="font-semibold text-foreground truncate">{item.title}</h3>
-                                <p className="text-sm text-muted-foreground">by {item.sellerName}</p>
+                                <h3 className="font-semibold text-foreground truncate">{item.product.title}</h3>
+                                <p className="text-sm text-muted-foreground">by {item.product.owner?.username || 'Unknown'}</p>
                                 <Badge variant="secondary" className="mt-1">
-                                  {item.category}
+                                  {item.product.category}
                                 </Badge>
                               </div>
                               <Button
@@ -189,9 +217,9 @@ export default function CartPage() {
 
                               <div className="text-right">
                                 <p className="font-semibold text-foreground">
-                                  ${(item.price * item.quantity).toFixed(2)}
+                                  ₹{(item.product.price * item.quantity).toFixed(2)}
                                 </p>
-                                <p className="text-xs text-muted-foreground">${item.price.toFixed(2)} each</p>
+                                <p className="text-xs text-muted-foreground">₹{item.product.price.toFixed(2)} each</p>
                               </div>
                             </div>
                           </div>
@@ -210,7 +238,7 @@ export default function CartPage() {
                       <div className="space-y-3 mb-4">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Subtotal ({getTotalItems()} items)</span>
-                          <span className="text-foreground">${getTotalPrice().toFixed(2)}</span>
+                          <span className="text-foreground">₹{cartTotal.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Shipping</span>
@@ -219,7 +247,7 @@ export default function CartPage() {
                         <div className="border-t border-border pt-3">
                           <div className="flex justify-between">
                             <span className="font-semibold text-foreground">Total</span>
-                            <span className="font-bold text-xl text-foreground">${getTotalPrice().toFixed(2)}</span>
+                            <span className="font-bold text-xl text-foreground">₹{cartTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -259,8 +287,8 @@ export default function CartPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Your Order</AlertDialogTitle>
               <AlertDialogDescription>
-                You're about to purchase {getTotalItems()} item{getTotalItems() !== 1 ? "s" : ""} for $
-                {getTotalPrice().toFixed(2)}. This action will complete your order and clear your cart.
+                You're about to purchase {getTotalItems()} item{getTotalItems() !== 1 ? "s" : ""} for ₹
+                {cartTotal.toFixed(2)}. This action will complete your order and clear your cart.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

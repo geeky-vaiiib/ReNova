@@ -192,7 +192,7 @@ export default function ProductDetailPage() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-2">{product.title}</h1>
-                <p className="text-4xl font-bold text-accent mb-4">${product.price.toFixed(2)}</p>
+                <p className="text-4xl font-bold text-accent mb-4">₹{product.price.toFixed(2)}</p>
               </div>
 
               <div>

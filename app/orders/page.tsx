@@ -175,7 +175,7 @@ export default function OrdersPage() {
                               {getTotalItemsInOrder(order)} item{getTotalItemsInOrder(order) !== 1 ? "s" : ""}
                             </div>
                             <div className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4" />${order.total.toFixed(2)}
+                              <DollarSign className="h-4 w-4" />₹{order.total.toFixed(2)}
                             </div>
                           </div>
                         </div>
@@ -208,9 +208,9 @@ export default function OrdersPage() {
                             </div>
                             <div className="text-right">
                               <p className="font-semibold text-foreground">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                ₹{(item.price * item.quantity).toFixed(2)}
                               </p>
-                              <p className="text-xs text-muted-foreground">${item.price.toFixed(2)} each</p>
+                              <p className="text-xs text-muted-foreground">₹{item.price.toFixed(2)} each</p>
                             </div>
                           </div>
                         ))}
