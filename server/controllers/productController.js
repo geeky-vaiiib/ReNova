@@ -1,5 +1,6 @@
 const { Product, User } = require('../models');
 const { Op } = require('sequelize');
+const { generateProductImageUrl } = require('../utils/imageUtils');
 
 // Get all products with search and filter
 const getProducts = async (req, res) => {
@@ -110,12 +111,15 @@ const createProduct = async (req, res) => {
     const { title, description, category, price, imageUrl } = req.body;
     const ownerId = req.user.id;
 
+    // Generate appropriate image URL if not provided or invalid
+    const finalImageUrl = generateProductImageUrl(title.trim(), category, imageUrl);
+
     const product = await Product.create({
       title: title.trim(),
       description: description.trim(),
       category,
       price: parseFloat(price),
-      imageUrl: imageUrl?.trim() || null,
+      imageUrl: finalImageUrl,
       ownerId
     });
 
@@ -181,7 +185,12 @@ const updateProduct = async (req, res) => {
     if (description !== undefined) updateData.description = description.trim();
     if (category !== undefined) updateData.category = category;
     if (price !== undefined) updateData.price = parseFloat(price);
-    if (imageUrl !== undefined) updateData.imageUrl = imageUrl?.trim() || null;
+    if (imageUrl !== undefined) {
+      // If imageUrl is being updated, use the dynamic image assignment
+      const newTitle = title !== undefined ? title.trim() : product.title;
+      const newCategory = category !== undefined ? category : product.category;
+      updateData.imageUrl = generateProductImageUrl(newTitle, newCategory, imageUrl);
+    }
 
     await product.update(updateData);
 
