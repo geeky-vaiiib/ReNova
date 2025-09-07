@@ -80,13 +80,17 @@ app.get('/db-test', async (_req, res) => {
     await sequelize.authenticate();
 
     // Test if User table exists
-    const { User } = require('./models');
+    const { User, Product, Order } = require('./models');
     const userCount = await User.count();
+    const productCount = await Product.count();
+    const orderCount = await Order.count();
 
     res.status(200).json({
       status: 'OK',
       message: 'Database connection successful',
       userCount: userCount,
+      productCount: productCount,
+      orderCount: orderCount,
       databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
       timestamp: new Date().toISOString()
     });
@@ -96,6 +100,36 @@ app.get('/db-test', async (_req, res) => {
       message: 'Database connection failed',
       error: error.message,
       databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Clean demo data endpoint (admin only)
+app.post('/clean-demo-data', async (req, res) => {
+  try {
+    // Simple admin check - in production, use proper authentication
+    const adminKey = req.headers['x-admin-key'];
+    if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'renova-admin-2024') {
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Admin key required'
+      });
+    }
+
+    const cleanDemoData = require('./scripts/clean-demo-data');
+    await cleanDemoData();
+
+    res.status(200).json({
+      status: 'OK',
+      message: 'Demo data cleaned successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Failed to clean demo data',
+      error: error.message,
       timestamp: new Date().toISOString()
     });
   }

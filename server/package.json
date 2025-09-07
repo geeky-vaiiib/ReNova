@@ -8,6 +8,7 @@
     "build": "npm install && node scripts/init-db.js",
     "dev": "nodemon index.js",
     "init-db": "node scripts/init-db.js",
+    "clean-demo": "node scripts/clean-demo-data.js",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all",
     "migrate": "npx sequelize-cli db:migrate",
