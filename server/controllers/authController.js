@@ -59,11 +59,18 @@ const register = async (req, res) => {
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user.id);
 
+    // Set refresh token as httpOnly cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
     res.status(201).json({
       message: 'User registered successfully',
       user: user.toJSON(),
-      token: accessToken,
-      refreshToken
+      token: accessToken
     });
 
   } catch (error) {
@@ -120,11 +127,18 @@ const login = async (req, res) => {
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user.id);
 
+    // Set refresh token as httpOnly cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
     res.json({
       message: 'Login successful',
       user: user.toJSON(),
-      token: accessToken,
-      refreshToken
+      token: accessToken
     });
 
   } catch (error) {
@@ -155,7 +169,8 @@ const getMe = async (req, res) => {
 // Refresh token
 const refreshToken = async (req, res) => {
   try {
-    const { refreshToken: token } = req.body;
+    // Get refresh token from httpOnly cookie
+    const token = req.cookies.refreshToken;
 
     if (!token) {
       return res.status(401).json({
@@ -165,7 +180,7 @@ const refreshToken = async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
-    
+
     // Check if user still exists
     const user = await User.findByPk(decoded.userId);
     if (!user) {
@@ -178,15 +193,22 @@ const refreshToken = async (req, res) => {
     // Generate new tokens
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(user.id);
 
+    // Set new refresh token as httpOnly cookie
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
     res.json({
       message: 'Token refreshed successfully',
-      token: accessToken,
-      refreshToken: newRefreshToken
+      accessToken: accessToken
     });
 
   } catch (error) {
     console.error('Refresh token error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         error: 'Access denied',

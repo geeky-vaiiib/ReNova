@@ -6,25 +6,73 @@ const getAuthToken = (): string | null => {
   return localStorage.getItem('token');
 };
 
-// Helper function to make API requests
-const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const token = getAuthToken();
+// Helper function to refresh access token
+const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  const config: RequestInit = {
-    credentials: 'include', // Include cookies for cross-origin requests
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    },
-    ...options,
+    if (response.ok) {
+      const data = await response.json();
+      if (data.accessToken) {
+        localStorage.setItem('token', data.accessToken);
+        return data.accessToken;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    return null;
+  }
+};
+
+// Helper function to make API requests with automatic token refresh
+const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+  const url = `${API_BASE_URL}${endpoint}`;
+  let token = getAuthToken();
+
+  const makeRequest = async (authToken?: string) => {
+    const config: RequestInit = {
+      credentials: 'include', // Include cookies for cross-origin requests
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken && { Authorization: `Bearer ${authToken}` }),
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    return fetch(url, config);
   };
 
-  const response = await fetch(url, config);
+  // First attempt
+  let response = await makeRequest(token);
+
+  // If unauthorized and not already a refresh request, try to refresh token
+  if (response.status === 401 && !endpoint.includes('/auth/refresh') && !endpoint.includes('/auth/login')) {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      // Retry with new token
+      response = await makeRequest(newToken);
+    }
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+
+    // If still unauthorized after refresh attempt, clear token and redirect to login
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+    }
+
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
   }
 
