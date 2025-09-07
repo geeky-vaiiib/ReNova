@@ -72,7 +72,7 @@ export default function LoginPage() {
               <Leaf className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-              EcoFinds
+              ReNova
             </h1>
           </div>
           <CardTitle className="text-2xl font-bold text-foreground mb-2">Welcome back</CardTitle>
@@ -151,7 +151,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-border/50"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-3 text-muted-foreground font-medium">New to EcoFinds?</span>
+              <span className="bg-card px-3 text-muted-foreground font-medium">New to ReNova?</span>
             </div>
           </div>
 

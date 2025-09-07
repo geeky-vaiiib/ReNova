@@ -9,11 +9,11 @@ import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "EcoFinds - Sustainable Marketplace",
-  description: "Discover quality second-hand items and reduce your environmental impact with EcoFinds marketplace.",
+  title: "ReNova - Sustainable Marketplace",
+  description: "Discover quality second-hand items and reduce your environmental impact with ReNova marketplace.",
   generator: "v0.app",
   keywords: ["marketplace", "second-hand", "sustainable", "eco-friendly", "recycling"],
-  authors: [{ name: "EcoFinds Team" }],
+  authors: [{ name: "ReNova Team" }],
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 }
 
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <ThemeProvider defaultTheme="system" storageKey="ecofinds-ui-theme">
+        <ThemeProvider defaultTheme="system" storageKey="renova-ui-theme">
           <Suspense fallback={null}>
             {children}
             <Toaster />

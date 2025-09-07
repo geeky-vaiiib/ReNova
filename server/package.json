@@ -1,7 +1,7 @@
 {
-  "name": "ecofinds-backend",
+  "name": "renova-backend",
   "version": "1.0.0",
-  "description": "Backend API for EcoFinds sustainable marketplace",
+  "description": "Backend API for ReNova sustainable marketplace",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",

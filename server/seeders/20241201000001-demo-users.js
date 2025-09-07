@@ -9,7 +9,7 @@ module.exports = {
     const users = [
       {
         username: 'demo',
-        email: 'demo@ecofinds.com',
+        email: 'demo@renova.com',
         passwordHash: await bcrypt.hash('demo1234', salt),
         createdAt: new Date(),
         updatedAt: new Date()

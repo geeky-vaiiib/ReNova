@@ -1,6 +1,6 @@
-# EcoFinds Backend API
+# ReNova Backend API
 
-A Node.js + Express + MySQL backend for the EcoFinds sustainable marketplace.
+A Node.js + Express + MySQL backend for the ReNova sustainable marketplace.
 
 ## Features
 
@@ -63,7 +63,7 @@ NODE_ENV=development
 DB_HOST=localhost
 DB_USER=root
 DB_PASS=your_password
-DB_NAME=ecofinds_db
+DB_NAME=renova_db
 
 # JWT
 JWT_SECRET=your_secret_key
@@ -124,7 +124,7 @@ FRONTEND_URL=http://localhost:3000
 ## Demo Data
 
 The seeder creates:
-- Demo user: `demo@ecofinds.com` / `demo1234`
+- Demo user: `demo@renova.com` / `demo1234`
 - 6 additional users with sample products
 - 12 sample products across different categories
 

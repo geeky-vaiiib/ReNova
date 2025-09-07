@@ -47,7 +47,7 @@ export function Navbar() {
               <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 group-hover:from-emerald-600 group-hover:to-teal-700 transition-all duration-200">
                 <Leaf className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">EcoFinds</span>
+              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">ReNova</span>
             </Link>
 
             <div className="flex items-center gap-1">
@@ -99,7 +99,7 @@ export function Navbar() {
               <div className="p-1 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 group-hover:from-emerald-600 group-hover:to-teal-700 transition-all duration-200">
                 <Leaf className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">EcoFinds</span>
+              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">ReNova</span>
             </Link>
 
             <div className="flex items-center gap-1">
@@ -144,7 +144,7 @@ export function Navbar() {
             <div className="p-1 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 group-hover:from-emerald-600 group-hover:to-teal-700 transition-all duration-200">
               <Leaf className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">EcoFinds</span>
+            <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">ReNova</span>
           </Link>
 
           <div className="flex items-center gap-2">

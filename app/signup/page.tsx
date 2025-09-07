@@ -73,7 +73,7 @@ export default function SignupPage() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Leaf className="h-8 w-8 text-accent" />
-            <h1 className="text-2xl font-bold text-foreground">EcoFinds</h1>
+            <h1 className="text-2xl font-bold text-foreground">ReNova</h1>
           </div>
           <CardTitle>Create your account</CardTitle>
           <CardDescription>Join the sustainable marketplace community</CardDescription>

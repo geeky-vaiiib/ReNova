@@ -1,4 +1,4 @@
-# EcoFinds Setup Guide
+# ReNova Setup Guide
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@
 First, make sure MySQL is running and create the database:
 
 ```sql
-CREATE DATABASE ecofinds_db;
+CREATE DATABASE renova_db;
 ```
 
 ### 2. Backend Setup
@@ -57,7 +57,7 @@ The frontend will be running at `http://localhost:3000`
 
 ## Demo Credentials
 
-- **Email**: demo@ecofinds.com
+- **Email**: demo@renova.com
 - **Password**: demo1234
 
 ## API Endpoints
@@ -71,7 +71,7 @@ The frontend will be running at `http://localhost:3000`
 
 1. Make sure MySQL is running
 2. Check database credentials in `server/.env`
-3. Ensure the database `ecofinds_db` exists
+3. Ensure the database `renova_db` exists
 
 ### Port Conflicts
 

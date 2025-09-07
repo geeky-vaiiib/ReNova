@@ -65,10 +65,10 @@ export default function AboutPage() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Leaf className="h-8 w-8 text-emerald-600" />
-            <h1 className="text-4xl font-bold text-foreground">About EcoFinds</h1>
+            <h1 className="text-4xl font-bold text-foreground">About ReNova</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            EcoFinds is a second-hand marketplace built to encourage sustainability, reduce waste, 
+            ReNova is a second-hand marketplace built to encourage sustainability, reduce waste,
             and connect buyers with sellers for affordable, eco-friendly shopping.
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function AboutPage() {
             <p className="text-lg text-muted-foreground leading-relaxed max-w-4xl mx-auto">
               We believe that sustainable living should be accessible to everyone. Our platform empowers 
               individuals to make environmentally conscious choices by providing a trusted marketplace 
-              for pre-owned goods. Every transaction on EcoFinds contributes to reducing waste, 
+              for pre-owned goods. Every transaction on ReNova contributes to reducing waste,
               conserving resources, and building a more sustainable future for our planet.
             </p>
           </CardContent>
@@ -93,7 +93,7 @@ export default function AboutPage() {
 
         {/* Features Grid */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Why Choose EcoFinds?</h2>
+          <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Why Choose ReNova?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-shadow">
@@ -139,7 +139,7 @@ export default function AboutPage() {
               Join the Sustainable Revolution
             </h2>
             <p className="text-emerald-700 dark:text-emerald-300 mb-6 max-w-2xl mx-auto">
-              Every item you buy or sell on EcoFinds helps reduce waste and promotes a circular economy. 
+              Every item you buy or sell on ReNova helps reduce waste and promotes a circular economy.
               Together, we can make a significant impact on our planet's future.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

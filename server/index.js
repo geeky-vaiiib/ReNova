@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
-    message: 'EcoFinds API is running',
+    message: 'ReNova API is running',
     timestamp: new Date().toISOString()
   });
 });
@@ -93,7 +93,7 @@ const startServer = async () => {
     }
     
     app.listen(PORT, () => {
-      console.log(`🚀 EcoFinds API server running on port ${PORT}`);
+      console.log(`🚀 ReNova API server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/health`);
     });

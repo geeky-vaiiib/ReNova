@@ -126,7 +126,7 @@ export default function ProfilePage() {
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-foreground">Profile Dashboard</h1>
-              <p className="text-muted-foreground">Manage your account and view your EcoFinds activity</p>
+              <p className="text-muted-foreground">Manage your account and view your ReNova activity</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
