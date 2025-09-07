@@ -53,7 +53,10 @@ export default function SignupPage() {
     }
 
     try {
+      console.log('Attempting registration with:', { username, email });
       const data = await authAPI.register(username, email, password)
+      console.log('Registration successful:', data);
+
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
       if (data.refreshToken) {
@@ -61,6 +64,7 @@ export default function SignupPage() {
       }
       router.push("/home")
     } catch (err: any) {
+      console.error('Registration error:', err);
       setError(err.message || "Failed to create account. Please try again.")
     }
 
