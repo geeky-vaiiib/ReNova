@@ -92,7 +92,8 @@ app.get('/db-test', async (_req, res) => {
       productCount: productCount,
       orderCount: orderCount,
       databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      version: '2.0.0' // Added to check deployment
     });
   } catch (error) {
     res.status(500).json({
