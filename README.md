@@ -34,11 +34,18 @@ ReNova is a second-hand marketplace built to encourage sustainability, reduce wa
 - **bcrypt** - Password hashing
 - **Multer** - File upload handling
 
-## 🚀 Quick Start
+## 🚀 Live Demo
+
+### Production URLs
+- **Frontend**: https://renova.vercel.app
+- **Backend API**: https://renova-api.onrender.com
+- **API Health Check**: https://renova-api.onrender.com/health
+
+## 🛠️ Local Development
 
 ### Prerequisites
 - Node.js (v18 or higher)
-- PostgreSQL (v12 or higher)
+- PostgreSQL (v12 or higher) or SQLite for development
 - npm or yarn
 
 ### Installation
@@ -61,46 +68,40 @@ ReNova is a second-hand marketplace built to encourage sustainability, reduce wa
    ```
 
 4. **Set up environment variables**
-   
+
    Frontend (.env.local):
    ```env
    NEXT_PUBLIC_API_URL=http://localhost:5001/api
    ```
-   
+
    Backend (server/.env):
    ```env
    PORT=5001
    NODE_ENV=development
-   DB_HOST=localhost
-   DB_USERNAME=postgres
-   DB_PASSWORD=your_password
-   DB_NAME=renova_dev
+   DATABASE_URL=./database.sqlite
    JWT_SECRET=your_jwt_secret
-   JWT_REFRESH_SECRET=your_refresh_secret
-   CORS_ORIGIN=http://localhost:3000
+   REFRESH_TOKEN_SECRET=your_refresh_secret
+   FRONTEND_URL=http://localhost:3000
    ```
 
 5. **Set up the database**
    ```bash
-   # Create database
-   createdb renova_dev
-   
    # Run migrations
    cd server
    npm run migrate
-   
+
    # Seed demo data
    npm run seed
    ```
 
 6. **Start the development servers**
-   
+
    Backend:
    ```bash
    cd server
    npm start
    ```
-   
+
    Frontend (in a new terminal):
    ```bash
    npm run dev
@@ -137,21 +138,28 @@ ReNova/
 └── public/               # Static assets
 ```
 
-## 🌍 Environment Variables
+## 🚀 Production Deployment
 
-### Frontend (.env.local)
+### Quick Deploy
+1. **Database**: Deploy PostgreSQL on Render/Railway/Supabase
+2. **Backend**: Deploy to Render using the included `render.yaml`
+3. **Frontend**: Deploy to Vercel with one-click GitHub integration
+
+### Detailed Instructions
+See [deploy.md](./deploy.md) for complete step-by-step deployment guide.
+
+### Environment Variables
+
+#### Frontend (.env.local)
 - `NEXT_PUBLIC_API_URL` - Backend API URL
 
-### Backend (server/.env)
+#### Backend (server/.env)
 - `PORT` - Server port (default: 5001)
 - `NODE_ENV` - Environment (development/production)
-- `DB_HOST` - Database host
-- `DB_USERNAME` - Database username
-- `DB_PASSWORD` - Database password
-- `DB_NAME` - Database name
+- `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - JWT signing secret
-- `JWT_REFRESH_SECRET` - Refresh token secret
-- `CORS_ORIGIN` - Allowed CORS origins
+- `REFRESH_TOKEN_SECRET` - Refresh token secret
+- `FRONTEND_URL` - Frontend URL for CORS
 
 ## 🤝 Contributing
 

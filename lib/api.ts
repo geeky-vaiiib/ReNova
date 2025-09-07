@@ -12,6 +12,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const token = getAuthToken();
 
   const config: RequestInit = {
+    credentials: 'include', // Include cookies for cross-origin requests
     headers: {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -21,7 +22,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   };
 
   const response = await fetch(url, config);
-  
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ message: 'Network error' }));
     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
