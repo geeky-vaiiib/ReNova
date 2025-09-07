@@ -49,7 +49,7 @@ async function cleanDemoData() {
       console.log(`🗑️ Deleted ${productsDeleted} products`);
       
       // Delete demo users (keep real users)
-      const demoUsersDeleted = await User.destroy({ 
+      const demoUsersDeleted = await User.destroy({
         where: {
           email: {
             [sequelize.Sequelize.Op.in]: [
@@ -61,9 +61,29 @@ async function cleanDemoData() {
             ]
           }
         },
-        transaction 
+        transaction
       });
       console.log(`🗑️ Deleted ${demoUsersDeleted} demo users`);
+
+      // Update remaining users' creation dates to current date if they're old
+      const currentDate = new Date();
+      const oldDate = new Date('2024-01-01');
+
+      const [updatedUsersCount] = await User.update(
+        {
+          createdAt: currentDate,
+          updatedAt: currentDate
+        },
+        {
+          where: {
+            createdAt: {
+              [sequelize.Sequelize.Op.lt]: oldDate
+            }
+          },
+          transaction
+        }
+      );
+      console.log(`🔄 Updated ${updatedUsersCount} users' creation dates`);
       
       // Commit transaction
       await transaction.commit();
