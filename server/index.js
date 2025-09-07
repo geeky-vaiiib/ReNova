@@ -140,16 +140,43 @@ const startServer = async () => {
         const { promisify } = require('util');
         const execAsync = promisify(exec);
 
-        // Run migrations
-        await execAsync('npx sequelize-cli db:migrate', { cwd: __dirname });
+        // Run migrations with detailed output
+        console.log('🔄 Executing: npx sequelize-cli db:migrate');
+        const { stdout: migrateOut, stderr: migrateErr } = await execAsync('npx sequelize-cli db:migrate', {
+          cwd: __dirname,
+          env: { ...process.env, NODE_ENV: 'production' }
+        });
+
+        if (migrateOut) console.log('📄 Migration stdout:', migrateOut);
+        if (migrateErr) console.log('📄 Migration stderr:', migrateErr);
         console.log('✅ Database migrations completed');
 
-        // Run seeds
-        await execAsync('npx sequelize-cli db:seed:all', { cwd: __dirname });
+        // Run seeds with detailed output
+        console.log('🔄 Executing: npx sequelize-cli db:seed:all');
+        const { stdout: seedOut, stderr: seedErr } = await execAsync('npx sequelize-cli db:seed:all', {
+          cwd: __dirname,
+          env: { ...process.env, NODE_ENV: 'production' }
+        });
+
+        if (seedOut) console.log('📄 Seed stdout:', seedOut);
+        if (seedErr) console.log('📄 Seed stderr:', seedErr);
         console.log('✅ Database seeds completed');
+
       } catch (migrationError) {
-        console.warn('⚠️ Migration/Seed warning:', migrationError.message);
-        // Don't fail the server start if migrations fail (they might already be applied)
+        console.error('❌ Migration/Seed error details:');
+        console.error('   Error message:', migrationError.message);
+        console.error('   Error code:', migrationError.code);
+        if (migrationError.stdout) console.error('   Stdout:', migrationError.stdout);
+        if (migrationError.stderr) console.error('   Stderr:', migrationError.stderr);
+
+        // Try to sync database as fallback
+        console.log('🔄 Attempting database sync as fallback...');
+        try {
+          await sequelize.sync({ force: false, alter: false });
+          console.log('✅ Database sync completed as fallback');
+        } catch (syncError) {
+          console.error('❌ Database sync also failed:', syncError.message);
+        }
       }
     } else {
       // Sync database (in development only)
