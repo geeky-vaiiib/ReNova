@@ -73,6 +73,33 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Database test endpoint
+app.get('/db-test', async (_req, res) => {
+  try {
+    await sequelize.authenticate();
+
+    // Test if User table exists
+    const { User } = require('./models');
+    const userCount = await User.count();
+
+    res.status(200).json({
+      status: 'OK',
+      message: 'Database connection successful',
+      userCount: userCount,
+      databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Database connection failed',
+      error: error.message,
+      databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
