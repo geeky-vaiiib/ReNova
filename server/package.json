@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "init-db": "node scripts/init-db.js",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all",
     "migrate": "npx sequelize-cli db:migrate",
@@ -17,12 +18,12 @@
     "node": ">=18 <21"
   },
   "keywords": [
-    "ecofinds",
+    "renova",
     "marketplace",
     "sustainable",
     "api"
   ],
-  "author": "EcoFinds Team",
+  "author": "ReNova Team",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",

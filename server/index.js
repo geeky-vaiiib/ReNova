@@ -132,8 +132,27 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully');
 
-    // Sync database (in development only)
-    if (process.env.NODE_ENV === 'development') {
+    // Run migrations and seeds automatically
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🔄 Running database migrations...');
+      try {
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+
+        // Run migrations
+        await execAsync('npx sequelize-cli db:migrate', { cwd: __dirname });
+        console.log('✅ Database migrations completed');
+
+        // Run seeds
+        await execAsync('npx sequelize-cli db:seed:all', { cwd: __dirname });
+        console.log('✅ Database seeds completed');
+      } catch (migrationError) {
+        console.warn('⚠️ Migration/Seed warning:', migrationError.message);
+        // Don't fail the server start if migrations fail (they might already be applied)
+      }
+    } else {
+      // Sync database (in development only)
       await sequelize.sync({ alter: false });
       console.log('✅ Database synchronized');
     }
