@@ -17,15 +17,20 @@ const PORT = process.env.PORT || 5001;
 // Middleware
 app.use(helmet());
 app.use(morgan('combined'));
+// CORS configuration
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3003",
+  "http://localhost:5173",
+  "https://renova.vercel.app",
+  "https://renova-marketplace.vercel.app",
+  FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:5173",
-    "https://renova.vercel.app",
-    "https://renova-marketplace.vercel.app",
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -33,12 +38,17 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Root route for Render health checks
+app.get('/', (_req, res) => res.send('ReNova API is running ✅'));
+
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    status: 'OK',
     message: 'ReNova API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT
   });
 });
 
@@ -91,23 +101,39 @@ app.use((err, req, res, next) => {
 // Start server
 const startServer = async () => {
   try {
+    console.log('🔄 Starting ReNova API server...');
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔌 Port: ${PORT}`);
+    console.log(`🌐 CORS Origins: ${allowedOrigins.join(', ')}`);
+
     // Test database connection
+    console.log('🔄 Testing database connection...');
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully');
-    
-    // Sync database (in development)
+
+    // Sync database (in development only)
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: false });
       console.log('✅ Database synchronized');
     }
-    
-    app.listen(PORT, () => {
+
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 ReNova API server running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+      console.log(`🔗 Root endpoint: http://localhost:${PORT}/`);
+      console.log('✅ Server is ready to accept connections');
     });
   } catch (error) {
-    console.error('❌ Unable to start server:', error);
+    console.error('❌ Unable to start server:', error.message);
+    console.error('❌ Full error:', error);
+
+    if (error.name === 'SequelizeConnectionError') {
+      console.error('❌ Database connection failed. Please check:');
+      console.error('   - DATABASE_URL environment variable is set');
+      console.error('   - PostgreSQL database is accessible');
+      console.error('   - Database credentials are correct');
+    }
+
     process.exit(1);
   }
 };

@@ -5,6 +5,7 @@ services:
     env: node
     buildCommand: cd server && npm install
     startCommand: cd server && npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
@@ -21,10 +22,8 @@ services:
       - key: FRONTEND_URL
         value: https://renova.vercel.app
 
+databases:
   # PostgreSQL Database
-  - type: pserv
-    name: renova-db
-    env: postgresql
-    plan: free
+  - name: renova-db
     databaseName: renova
-    databaseUser: renova_user
+    user: renova_user
