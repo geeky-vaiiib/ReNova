@@ -29,6 +29,7 @@ const allowedOrigins = [
   // Production origins
   "https://renova.vercel.app",
   "https://renova-marketplace.vercel.app",
+  "https://re-nova.vercel.app",
   FRONTEND_URL
 ].filter(Boolean);
 
